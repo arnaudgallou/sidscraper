@@ -27,11 +27,11 @@ def process_args():
     args = load_arguments()
     ap = argparse.ArgumentParser()
     if args.directory and not Path(args.directory).is_dir():
-        ap.error("Directory '" + args.directory + "' does not exist.")
+        ap.error(f'Directory {args.directory} does not exist.')
     elif not args.directory:
         args.directory = ''
     if args.filename and any(x in args.filename for x in ['\\', '/']):
-        ap.error("Invalid file name. Are you trying to pass a directory as a file name?")
+        ap.error('Invalid file name. Are you trying to pass a directory as a file name?')
     elif not args.filename:
         args.filename = 'sidscraper_output'
     args.path = args.directory + args.filename
@@ -74,7 +74,7 @@ def get_family_names():
     print('Extracting family names...', end = '', flush = True)
     data = []
     for i in ['A', 'G']:
-        query = 'http://www.theplantlist.org/1.1/browse/' + i + '/'
+        query = f'http://www.theplantlist.org/1.1/browse/{i}/'
         try:
             page = get_html(query)
         except UnboundLocalError:
@@ -126,11 +126,11 @@ def scrape_sid(families):
     styles = {}
     got_styles = False
     for family in tqdm(families, desc = 'Extracting seed data'):
-        query = 'https://data.kew.org/sid/SidServlet?Clade=&Order=&Family=' + family + '&APG=off&Genus=&Species=&StorBehav=0'
+        query = f'https://data.kew.org/sid/SidServlet?Clade=&Order=&Family={family}&APG=off&Genus=&Species=&StorBehav=0'
         try:
             page = get_html(query, parser = 'lxml')
         except UnboundLocalError:
-            print("Unable to establish connection with the server. Failed request for family:", family)
+            print(f'Unable to establish connection with the server. Failed request for family: {family}')
         else:
             main = page.find('div', id = 'sid')
             n_records = main.find('b').text
@@ -151,7 +151,7 @@ def scrape_sid(families):
 
 def ls_to_csv(data, file_name, cols, sep = ';'):
     df = pandas.DataFrame(data, columns = cols)
-    out = df.to_csv(file_name + '.csv', sep = sep, index = False, quoting = csv.QUOTE_ALL)
+    out = df.to_csv(f'{file_name}.csv', sep = sep, index = False, quoting = csv.QUOTE_ALL)
     return out
 
 def main():
